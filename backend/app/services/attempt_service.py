@@ -5,6 +5,7 @@ from app.models.problem import Problem
 from app.schemas.attempt import AttemptCreate, AttemptUpdate, AttemptSubmit, AttemptResponse, AttemptListResponse
 from typing import Optional
 from datetime import datetime, timezone
+from app.services.dashboard_service import DashboardService
 
 
 class AttemptService:
@@ -28,6 +29,7 @@ class AttemptService:
         db.add(attempt)
         await db.commit()
         await db.refresh(attempt)
+        await DashboardService.invalidate_user_stats(user_id)
         return attempt
 
     @staticmethod
@@ -59,6 +61,7 @@ class AttemptService:
 
         await db.commit()
         await db.refresh(attempt)
+        await DashboardService.invalidate_user_stats(user_id)
         return attempt
 
     @staticmethod
@@ -115,4 +118,5 @@ class AttemptService:
         
         await db.commit()
         await db.refresh(attempt)
+        await DashboardService.invalidate_user_stats(user_id)
         return attempt

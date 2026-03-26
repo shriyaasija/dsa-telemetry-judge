@@ -10,9 +10,12 @@ from app.schemas.attempt import (
 from app.schemas.telemetry import (
     TelemetryEventCreate, TelemetryBatchCreate, TelemetryEventResponse, TelemetrySummary
 )
+from app.schemas.dashboard import UserStats, ProblemStats
+
 __all__ = [
     "ProblemCreate", "ProblemUpdate", "ProblemResponse", "ProblemListResponse",
     "UserCreate", "UserUpdate", "UserResponse", "UserLogin", "Token", "TokenPayload",
     "AttemptCreate", "AttemptUpdate", "AttemptSubmit", "AttemptResponse", "AttemptListResponse",
     "TelemetryEventCreate", "TelemetryBatchCreate", "TelemetryEventResponse", "TelemetrySummary",
+    "UserStats", "ProblemStats",
 ]
