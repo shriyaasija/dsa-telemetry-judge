@@ -1,7 +1,8 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, ConfigDict
 from datetime import datetime
 from typing import Optional
 import re
+
 
 class UserBase(BaseModel):
     email: EmailStr
@@ -14,11 +15,22 @@ class UserCreate(UserBase):
 
     @field_validator('username')
     @classmethod
-    def validate_username(cls, value):
-        if not re.match(r'^[a-zA-Z0-9_]', value):
+    def validate_username(cls, v):
+        if not re.match(r'^[a-zA-Z0-9_]+$', v):
             raise ValueError('Username can only contain letters, numbers, and underscores')
-        return value.lower()
-    
+        return v.lower()
+
+    @field_validator('password')
+    @classmethod
+    def validate_password(cls, v):
+        if not re.search(r'[A-Z]', v):
+            raise ValueError('Password must contain at least one uppercase letter')
+        if not re.search(r'[a-z]', v):
+            raise ValueError('Password must contain at least one lowercase letter')
+        if not re.search(r'\d', v):
+            raise ValueError('Password must contain at least one digit')
+        return v
+
 
 class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
@@ -27,17 +39,17 @@ class UserUpdate(BaseModel):
 
     @field_validator('password')
     @classmethod
-    def validate_password(cls, value):
-        if value is None:
-            return value
-        if not re.search(r'[A-Z]', value):
+    def validate_password(cls, v):
+        if v is None:
+            return v
+        if not re.search(r'[A-Z]', v):
             raise ValueError('Password must contain at least one uppercase letter')
-        if not re.search(r'[a-z]', value):
+        if not re.search(r'[a-z]', v):
             raise ValueError('Password must contain at least one lowercase letter')
-        if not re.search(r'\d', value):
+        if not re.search(r'\d', v):
             raise ValueError('Password must contain at least one digit')
-        return value
-    
+        return v
+
 
 class UserResponse(UserBase):
     id: int
@@ -45,9 +57,8 @@ class UserResponse(UserBase):
     is_verified: bool
     created_at: datetime
     last_login: Optional[datetime] = None
-    
-    class Config:
-        from_attributes = True
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserLogin(BaseModel):
@@ -62,6 +73,6 @@ class Token(BaseModel):
 
 
 class TokenPayload(BaseModel):
-    sub: Optional[int] = None # user ID
-    exp: Optional[int] = None # expiration
-    type: Optional[str] = None # token type
+    sub: Optional[str] = None  # User ID (stored as string in JWT)
+    exp: Optional[int] = None  # Expiration
+    type: Optional[str] = None  # Token type (access/refresh)

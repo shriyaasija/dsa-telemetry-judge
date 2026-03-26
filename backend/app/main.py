@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api.problem import router as problems_router
+from app.api.auth import router as auth_router
+from app.api.users import router as users_router
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -20,6 +22,8 @@ app.add_middleware(
 )
 
 # include routers
+app.include_router(auth_router, prefix=settings.API_V1_PREFIX)
+app.include_router(users_router, prefix=settings.API_V1_PREFIX)
 app.include_router(problems_router, prefix=settings.API_V1_PREFIX)
 
 
@@ -29,7 +33,8 @@ async def root():
         "message": f"{settings.APP_NAME} API",
         "version": "0.2.0",
         "status": "healthy",
-        "environment": settings.ENVIRONMENT
+        "environment": settings.ENVIRONMENT,
+        "features": ["problems", "authentication", "user-management"]
     }
 
 

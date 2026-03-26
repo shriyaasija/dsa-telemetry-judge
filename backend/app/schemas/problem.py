@@ -1,8 +1,8 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from datetime import datetime
 from typing import Optional
 from app.models.problem import DifficultyLevel
-from slugify import slugify
+
 
 class ProblemBase(BaseModel):
     title: str = Field(..., min_length=3, max_length=255)
@@ -14,6 +14,7 @@ class ProblemBase(BaseModel):
     sample_input: Optional[str] = None
     sample_output: Optional[str] = None
 
+
 class ProblemCreate(ProblemBase):
     @field_validator('title')
     @classmethod
@@ -21,7 +22,8 @@ class ProblemCreate(ProblemBase):
         if not v.strip():
             raise ValueError('Title cannot be empty')
         return v.strip()
-    
+
+
 class ProblemUpdate(BaseModel):
     title: Optional[str] = Field(None, min_length=3, max_length=255)
     description: Optional[str] = Field(None, min_length=10)
@@ -38,9 +40,8 @@ class ProblemResponse(ProblemBase):
     slug: str
     created_at: datetime
     updated_at: Optional[datetime] = None
-    
-    class Config:
-        from_attributes = True
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ProblemListResponse(BaseModel):
